@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="style.css"/>
+    <script src="solver.js"></script>
+</head>
+<html>
+    <div class="chooseNumber">
+        <label for="numberChooser">Number of Words (1-10):</label>
+        <input type="number" id="numberChooser" name="numberChooser" min="1" max="10" oninput="changeNumFields('numberChooser')">
+        <button type="button" id="runButton" onclick="runSolver()" disabled>Run</button>
+    </div>
+    <div class="wordFields" id="wordFields" oninput="checkWord('filler', true)"></div>
+</html>

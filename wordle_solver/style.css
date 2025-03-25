@@ -1,0 +1,10 @@
+#wordFields{
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 100px;
+    row-gap: 20px;
+}
+
+#wordFields{
+    width: 100px;
+}
