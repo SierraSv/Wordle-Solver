@@ -131,7 +131,7 @@ function runSolver(){
         document.getElementById("listField" + i).appendChild(list_item)
     }
     console.log(fieldArray)
-    let remainingGuesses = 11 //19
+    let remainingGuesses = 19
     let toUpdateIndex = 0
     while ((remainingGuesses > 0) && (doneArray.length < fieldArray.length)){
         let smallestRemaining = 2315
