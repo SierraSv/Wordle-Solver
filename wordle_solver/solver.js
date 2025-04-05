@@ -131,7 +131,7 @@ function runSolver(){
         document.getElementById("listField" + i).appendChild(list_item)
     }
     console.log(fieldArray)
-    let remainingGuesses = 19
+    let remainingGuesses = 11 //19
     let toUpdateIndex = 0
     while ((remainingGuesses > 0) && (doneArray.length < fieldArray.length)){
         let smallestRemaining = 2315
@@ -166,6 +166,7 @@ function runSolver(){
         if (doneArray.length > 0){
             console.log("Here's what's done:", doneArray)
         }
+        console.log("I'm going to guess", bestWord.word)
         let i = 1
         for (let fieldObject of fieldArray){
             if (doneArray.indexOf(fieldObject) == -1){
@@ -187,7 +188,7 @@ function updatePositions(positionMapObject, word){
     //Confirmed letter repeated bug
     let positions = positionMapObject.positions
     let goalWord = positionMapObject.word
-    let knownChars = ""
+    //let knownChars = ""
     //console.log("updatePositions word:", word)
     for (let i = 0; i < 5; i++){
         // const clue = "clue" + i
@@ -196,6 +197,7 @@ function updatePositions(positionMapObject, word){
         // const wrongSpot = document.getElementById("wrongSpot" + i)
         const letter = word[i].toLowerCase()
         //console.log(i, confirmed.checked, wrongSpot.checked)
+        //turns green
         if (goalWord[i] == word[i]){
             positions["pos" + (i+1)] = letter
             for (let position in positions){
@@ -210,8 +212,10 @@ function updatePositions(positionMapObject, word){
             // if (countChar(word.toUpperCase(), letter) > countChar(knownChars, letter)){
             //     knownChars += letter
             // }
-            knownChars += letter
+            //console.log("Adding", letter, "to knownChars for", goalWord, "because it turned green")
+            //knownChars += letter
         }
+        //turns yellow
         else if ((goalWord.indexOf(letter) != -1) && (countChar(word.slice(0, i+1), letter) <= countChar(goalWord, letter))){
             for (let position in positions){
                 if (typeof positions[position] != "string"){
@@ -236,18 +240,34 @@ function updatePositions(positionMapObject, word){
                     }
                 }
             }
-            knownChars += letter
+            //console.log("Adding", letter, "to knownChars for", goalWord, "because it turned yellow")
+            //knownChars += letter
             //if (knownChars.indexOf(letter) == -1){
             // if (countChar(word.toUpperCase(), letter) > countChar(knownChars, letter)) {
             //     knownChars += letter
             // }
         }
+        //turns grey because letter is repeated too much
+        else if((countChar(goalWord, letter) > 0) && (countChar(word.slice(0, i+1), letter) > countChar(goalWord, letter))){
+            let position = positions["pos" + (i+1)]
+            // console.log("Current position looks like:", position, "goalword is", goalWord, "current letter is", letter)
+            // console.log(goalWord, "contains the letter", letter, (countChar(goalWord, letter) > 0))
+            // console.log((word.slice(0, i+1)), "contains the letter", letter, (countChar(word.slice(0, i+1), letter)), "times", goalWord, "contains that letter", (countChar(goalWord, letter)), "times, which is more than the slice", (countChar(word.slice(0, i+1), letter) > countChar(goalWord, letter)))
+            if (typeof position != "string"){
+                if(position.get("possible").has(letter)){
+                    //console.log("removing from list", letter, position)
+                    position.get("possible").delete(letter)
+                }
+                position.get("impossible").add(letter)
+            }
+        }
+        //turns grey because that letter is not in the word entirely
         else{
             for (let position in positions){
                 if (typeof positions[position] != "string"){
-                    // if (!position.get("impossible").has(letter)){
-                    //     position.get("impossible").add(letter)
-                    // }
+                    if (positions[position].get("possible").has(letter)){
+                        positions[position].get("possible").delete(letter)
+                    }
                     positions[position].get("impossible").add(letter)
                 }
             }
@@ -257,26 +277,20 @@ function updatePositions(positionMapObject, word){
         //     knownChars += letter
         // }
     }
-    //Quick check for repeated letters that are marked Not In The Word
-    // for (let i = 0; i < 5; i++){
-    //     //const notInWord = document.getElementById("null" + i)
-    //     const letter = word[i].toUpperCase()
-    //     if (() && (knownChars.indexOf(letter) != -1)){
-    //         //console.log("There's too many letters", knownChars, letter, knownChars.replace(letter, "").length)
-    //         knownChars =  knownChars.replace(letter, "")
-    //         const pos = "pos" + i
-    //         if(typeof positions[pos] != "string"){
-    //             if(positions[pos].possible.indexOf(letter) != -1){
-    //                 positions.remove(letter, positions[pos].possible)
-    //             }
-    //             if(positions[pos].impossible.indexOf(letter) == -1){
-    //                 positions[pos].impossible.push(letter)
-    //             }
-    //         }
-    //     }
-    // }
+    let knownChars = new Set()
+    for (let pos in positions){
+        //console.log("At remaining words: position", pos, "is a", typeof pos)
+        if (typeof positions[pos] == "string"){
+            knownChars.add(positions[pos])
+        }
+        else{
+            for (let letter of positions[pos].get("possible")){
+                knownChars.add(letter)
+            }
+        }
+    }
     console.log(positions)
-    //console.log("knownChars:", knownChars)
+    console.log("knownChars:", knownChars)
     createFormList(positionMapObject, knownChars)
 }
 
